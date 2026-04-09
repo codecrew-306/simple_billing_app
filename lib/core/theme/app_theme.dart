@@ -52,7 +52,8 @@ class AppTheme {
       cardTheme: CardTheme(
         color: card,
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.05),
+        surfaceTintColor: Colors.transparent,
+        shadowColor: const Color(0x0D000000), // Colors.black.withOpacity(0.05)
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: const BorderSide(color: border),
@@ -82,6 +83,50 @@ class AppTheme {
         centerTitle: false,
         scrolledUnderElevation: 0,
       ),
+      extensions: [
+        CustomColors(
+          success: success,
+          muted: muted,
+          mutedForeground: mutedForeground,
+        ),
+      ],
+    );
+  }
+}
+
+class CustomColors extends ThemeExtension<CustomColors> {
+  final Color? success;
+  final Color? muted;
+  final Color? mutedForeground;
+
+  const CustomColors({
+    required this.success,
+    required this.muted,
+    required this.mutedForeground,
+  });
+
+  @override
+  CustomColors copyWith({
+    Color? success,
+    Color? muted,
+    Color? mutedForeground,
+  }) {
+    return CustomColors(
+      success: success ?? this.success,
+      muted: muted ?? this.muted,
+      mutedForeground: mutedForeground ?? this.mutedForeground,
+    );
+  }
+
+  @override
+  CustomColors lerp(ThemeExtension<CustomColors>? other, double t) {
+    if (other is! CustomColors) {
+      return this;
+    }
+    return CustomColors(
+      success: Color.lerp(success, other.success, t),
+      muted: Color.lerp(muted, other.muted, t),
+      mutedForeground: Color.lerp(mutedForeground, other.mutedForeground, t),
     );
   }
 }
