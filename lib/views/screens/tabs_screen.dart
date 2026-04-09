@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_theme.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class TabsScreen extends StatelessWidget {
@@ -25,7 +26,29 @@ class TabsScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(index == 0 ? 'Ramesh Kumar' : 'Suresh Patel', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Row(
+                        children: [
+                          Text(index == 0 ? 'Ramesh Kumar' : 'Suresh Patel', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          if (isOverdue) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'OVERDUE',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                       Text(index == 0 ? '9876543210' : '9123456780', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   ),
@@ -44,7 +67,7 @@ class TabsScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('Paid:', style: TextStyle(color: Colors.grey)),
-                      Text('₹400.00', style: TextStyle(color: Theme.of(context).colorScheme.success)),
+                      Text('₹400.00', style: TextStyle(color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green)),
                     ],
                   ),
                   const SizedBox(height: 4),
