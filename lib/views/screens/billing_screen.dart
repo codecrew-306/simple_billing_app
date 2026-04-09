@@ -9,8 +9,6 @@ class BillingScreen extends StatefulWidget {
 }
 
 class _BillingScreenState extends State<BillingScreen> {
-  bool _isCustomerExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,9 +81,7 @@ class _BillingScreenState extends State<BillingScreen> {
                   title: const Text('Customer Details'),
                   subtitle: const Text('Walk-in Customer'),
                   onExpansionChanged: (expanded) {
-                    setState(() {
-                      _isCustomerExpanded = expanded;
-                    });
+                    // Expansion handled by tile
                   },
                   children: [
                     Padding(
