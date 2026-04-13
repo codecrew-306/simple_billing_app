@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Tokens
-  static const Color primary = Color(0xFF2563EB); // Blue 600
+  static const Color primary = Color(0xFF0B2D4F); // Dark Navy Blue
   static const Color primaryForeground = Color(0xFFFFFFFF);
-  static const Color background = Color(0xFFFFFFFF);
+  static const Color background = Color(0xFFF8FAFC);
   static const Color foreground = Color(0xFF0F172A);
   static const Color card = Color(0xFFFFFFFF);
   static const Color muted = Color(0xFFF1F5F9);
@@ -12,7 +12,7 @@ class AppTheme {
   static const Color border = Color(0xFFE2E8F0);
   static const Color destructive = Color(0xFFEF4444);
   static const Color success = Color(0xFF22C55E);
-  static const Color accent = Color(0xFF8B5CF6); // Violet
+  static const Color accent = Color(0xFFFFB700); // Yellow
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -32,7 +32,11 @@ class AppTheme {
         bodyLarge: TextStyle(color: foreground, fontSize: 16),
         bodyMedium: TextStyle(color: foreground, fontSize: 14),
         bodySmall: TextStyle(color: mutedForeground, fontSize: 12),
-        titleLarge: TextStyle(color: foreground, fontSize: 18, fontWeight: FontWeight.w600),
+        titleLarge: TextStyle(
+          color: foreground,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -49,7 +53,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: card,
         elevation: 1,
         surfaceTintColor: Colors.transparent,
@@ -74,7 +78,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: primary, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: background,

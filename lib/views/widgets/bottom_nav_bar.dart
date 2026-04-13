@@ -35,7 +35,7 @@ class BottomNavBar extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       currentIndex: currentIndex,
       onTap: _onItemTapped,
-      selectedItemColor: Theme.of(context).primaryColor,
+      selectedItemColor: Theme.of(context).colorScheme.secondary,
       unselectedItemColor: Colors.grey,
       items: const [
         BottomNavigationBarItem(
@@ -44,14 +44,14 @@ class BottomNavBar extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.receipt_long_outlined),
-          activeIcon: Icon(Icons.receipt_long),
+          icon: Icon(Icons.request_quote_outlined),
+          activeIcon: Icon(Icons.request_quote),
           label: 'Billing',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.swap_horiz_outlined),
           activeIcon: Icon(Icons.swap_horiz),
-          label: 'Records', // Changed to fit better, though req says Transactions
+          label: 'Transactions',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.description_outlined),
