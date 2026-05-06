@@ -8,14 +8,20 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Settings',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Store Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Store Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             Card(
               child: Padding(
@@ -24,12 +30,16 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     TextFormField(
                       initialValue: 'City Grocery',
-                      decoration: const InputDecoration(labelText: 'Store Name'),
+                      decoration: const InputDecoration(
+                        labelText: 'Store Name',
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       initialValue: 'John Doe',
-                      decoration: const InputDecoration(labelText: 'Owner Name'),
+                      decoration: const InputDecoration(
+                        labelText: 'Owner Name',
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -51,17 +61,20 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
-            const Text('Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+            const Text(
+              'Preferences',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             Card(
               child: ListTile(
                 title: const Text('Currency'),
                 trailing: DropdownButton<String>(
                   value: 'INR (₹)',
-                  items: ['INR (₹)', 'USD ($)', 'EUR (€)'].map((String value) {
+                  items: ['INR (₹)', 'USD (\$)', 'EUR (€)'].map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -73,8 +86,11 @@ class SettingsScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 32),
-            
-            const Text('Data Management', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+            const Text(
+              'Data Management',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             Card(
               child: Column(
@@ -92,8 +108,16 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   const Divider(height: 1),
                   ListTile(
-                    leading: Icon(Icons.delete_forever, color: Theme.of(context).colorScheme.error),
-                    title: Text('Reset All Data', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                    leading: Icon(
+                      Icons.delete_forever,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    title: Text(
+                      'Reset All Data',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                     onTap: () {},
                   ),
                 ],
@@ -102,7 +126,11 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: 48),
             const Center(
-              child: Text('Version 1.0.0\nMade with ❤️ for small shops', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+              child: Text(
+                'Version 1.0.0\nMade with ❤️ for small shops',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
             ),
             const SizedBox(height: 24),
           ],

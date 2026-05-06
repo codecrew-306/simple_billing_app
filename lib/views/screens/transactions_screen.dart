@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/transaction_details_modal.dart';
+import '../../viewmodels/transaction_viewmodel.dart';
 
-class TransactionsScreen extends StatelessWidget {
+class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final transactions = ref.watch(transactionProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transactions', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Transactions',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 16.0),
@@ -18,7 +27,7 @@ class TransactionsScreen extends StatelessWidget {
                 style: TextStyle(fontFamily: 'monospace', color: Colors.grey),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: Column(
@@ -26,7 +35,10 @@ class TransactionsScreen extends StatelessWidget {
           // Filter Chips
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 _buildFilterChip(context, 'Today', isSelected: true),
@@ -39,17 +51,18 @@ class TransactionsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16.0),
-              children: [
-                _buildTransactionCard(context, 'Rajesh', '15 Mar 2024, 10:45 AM', '₹850', 'Items: 2 \u00B7 Payment: Cash'),
-                _buildTransactionCard(context, 'Priya', '15 Mar 2024, 10:15 AM', '₹220', 'Items: 3 \u00B7 Payment: Cash'),
-                _buildTransactionCard(context, 'Walk-in', '15 Mar 2024, 09:50 AM', '₹1,250', 'Items: 4 \u00B7 Payment: Cash'),
-                _buildTransactionCard(context, 'Amit', '15 Mar 2024, 09:20 AM', '₹450', 'Items: 3 \u00B7 Payment: Cash'),
-              ],
-            ),
+            child: transactions.isEmpty
+                ? const Center(child: Text('No transactions yet'))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: transactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = transactions[index];
+                      return _buildTransactionCard(context, transaction);
+                    },
+                  ),
           ),
         ],
       ),
@@ -57,11 +70,17 @@ class TransactionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterChip(BuildContext context, String label, {required bool isSelected}) {
+  Widget _buildFilterChip(
+    BuildContext context,
+    String label, {
+    required bool isSelected,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.grey.shade100,
+        color: isSelected
+            ? Theme.of(context).colorScheme.secondary
+            : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -74,7 +93,11 @@ class TransactionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTransactionCard(BuildContext context, String name, String date, String amount, String summary) {
+  Widget _buildTransactionCard(BuildContext context, dynamic transaction) {
+    final dateStr = DateFormat(
+      'dd Mar yyyy, hh:mm a',
+    ).format(transaction.timestamp);
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -90,29 +113,85 @@ class TransactionsScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                Text(amount, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'monospace')),
+                Text(
+                  transaction.customerName ?? 'Walk-in',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  '₹${transaction.total.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontFamily: 'monospace',
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 4),
-            Text(date, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+            Text(
+              dateStr,
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+            ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(summary, style: TextStyle(color: Colors.blueGrey.shade400, fontSize: 13)),
+                Text(
+                  'Items: ${transaction.items.length} \u00B7 Payment: ${transaction.paymentMethod}',
+                  style: TextStyle(
+                    color: Colors.blueGrey.shade400,
+                    fontSize: 13,
+                  ),
+                ),
                 Row(
                   children: [
                     TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                      child: Text('View Details', style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              TransactionDetailsModal(transaction: transaction),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'View Details',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     TextButton(
-                      onPressed: () {},
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                      child: Text('Share', style: TextStyle(color: Colors.blueGrey.shade600, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        // Directly trigger share
+                        final buffer = StringBuffer();
+                        buffer.writeln(
+                          'Receipt for ${transaction.customerName ?? "Walk-in"}',
+                        );
+                        buffer.writeln('Total: ₹${transaction.total}');
+                        // Normally we'd use the same logic as the modal
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        'Share',
+                        style: TextStyle(
+                          color: Colors.blueGrey.shade600,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),

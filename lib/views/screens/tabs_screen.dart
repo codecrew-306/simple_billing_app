@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/tab_details_dialog.dart';
+import '../widgets/record_payment_dialog.dart';
+import '../../models/tab.dart';
+import '../../viewmodels/tab_viewmodel.dart';
+import 'package:intl/intl.dart';
 
-class TabsScreen extends StatelessWidget {
+class TabsScreen extends ConsumerWidget {
   const TabsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tabs = ref.watch(tabProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tabs', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Tabs',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 16.0),
@@ -19,21 +30,45 @@ class TabsScreen extends StatelessWidget {
                 style: TextStyle(fontFamily: 'monospace', color: Colors.grey),
               ),
             ),
-          )
+          ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          _buildTabCard(context, 'Rajesh Sharma', '98765 43210', '15 Mar 2024', '₹850', '₹500', '₹350'),
-          _buildTabCard(context, 'Amit Patel', '98765 12345', '14 Mar 2024', '₹1,250', '₹0', '₹1,250'),
-        ],
-      ),
+      body: tabs.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    size: 64,
+                    color: Colors.grey.shade300,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No outstanding tabs',
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 16),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: tabs.length,
+              itemBuilder: (context, index) {
+                final tab = tabs[index];
+                return _buildTabCard(context, tab);
+              },
+            ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 3),
     );
   }
 
-  Widget _buildTabCard(BuildContext context, String name, String phone, String date, String total, String paid, String outstanding) {
+  Widget _buildTabCard(BuildContext context, TabEntry tab) {
+    final dateStr = DateFormat('dd MMM yyyy').format(tab.timestamp);
+    final totalStr = '₹${tab.total.toStringAsFixed(0)}';
+    final paidStr = '₹${tab.paidAmount.toStringAsFixed(0)}';
+    final outstandingStr = '₹${tab.outstandingAmount.toStringAsFixed(0)}';
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -46,18 +81,73 @@ class TabsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(
+              tab.customerName ?? 'Walk-in',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 4),
-            Text(phone, style: TextStyle(color: Colors.blueGrey.shade600, fontSize: 13)),
-            Text('Bill: $date', style: TextStyle(color: Colors.blueGrey.shade600, fontSize: 13)),
+            Text(
+              tab.customerPhone ?? 'No phone',
+              style: TextStyle(color: Colors.blueGrey.shade600, fontSize: 13),
+            ),
+            Text(
+              'Bill: $dateStr',
+              style: TextStyle(color: Colors.blueGrey.shade600, fontSize: 13),
+            ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Text('Total: ', style: TextStyle(color: Colors.blueGrey.shade600, fontSize: 13)),
-                Text(total, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'monospace')),
+                Text(
+                  'Total: ',
+                  style: TextStyle(
+                    color: Colors.blueGrey.shade600,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  totalStr,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontFamily: 'monospace',
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Text('Paid: ', style: TextStyle(color: Colors.blueGrey.shade600, fontSize: 13)),
-                Text(paid, style: TextStyle(color: Theme.of(context).extension<CustomColors>()?.success ?? Colors.green, fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'monospace')),
+                Text(
+                  'Paid: ',
+                  style: TextStyle(
+                    color: Colors.blueGrey.shade600,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  paidStr,
+                  style: TextStyle(
+                    color:
+                        Theme.of(context).extension<CustomColors>()?.success ??
+                        Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  'Outstanding:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                Text(
+                  outstandingStr,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.error,
+                    fontFamily: 'monospace',
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -65,29 +155,45 @@ class TabsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Outstanding:', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.error)),
-                    Text(outstanding, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.error, fontFamily: 'monospace')),
-                  ],
-                ),
                 Row(
                   children: [
                     TextButton(
-                      onPressed: () {},
-                      child: Text('View Details', style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold)),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => TabDetailsDialog(tab: tab),
+                        );
+                      },
+                      child: Text(
+                        'View Details',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => RecordPaymentDialog(tab: tab),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         elevation: 0,
                       ),
-                      child: const Text('Mark as Paid', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Mark Payment',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
