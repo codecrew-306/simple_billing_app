@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/routes/app_routes.dart';
+import '../widgets/responsive_auth_container.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
+        child: ResponsiveAuthContainer(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(

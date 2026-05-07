@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/routes/app_routes.dart';
+import '../widgets/responsive_auth_container.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -28,10 +29,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Shop', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Register Shop',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: SafeArea(
-        child: Center(
+        child: ResponsiveAuthContainer(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
@@ -47,62 +51,83 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(color: Colors.grey),
                 ),
                 const SizedBox(height: 32),
-                
+
                 TextField(
                   controller: _shopNameController,
-                  decoration: const InputDecoration(labelText: 'Shop Name *', hintText: 'e.g. City Grocery'),
+                  decoration: const InputDecoration(
+                    labelText: 'Shop Name *',
+                    hintText: 'e.g. City Grocery',
+                  ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 TextField(
                   controller: _ownerNameController,
-                  decoration: const InputDecoration(labelText: 'Owner Name *', hintText: 'Your full name'),
+                  decoration: const InputDecoration(
+                    labelText: 'Owner Name *',
+                    hintText: 'Your full name',
+                  ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email *', hintText: 'name@example.com'),
+                  decoration: const InputDecoration(
+                    labelText: 'Email *',
+                    hintText: 'name@example.com',
+                  ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password *', hintText: 'Create a strong password'),
+                  decoration: const InputDecoration(
+                    labelText: 'Password *',
+                    hintText: 'Create a strong password',
+                  ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 TextField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Phone (Optional)', hintText: 'Contact number'),
+                  decoration: const InputDecoration(
+                    labelText: 'Phone (Optional)',
+                    hintText: 'Contact number',
+                  ),
                 ),
                 const SizedBox(height: 32),
-                
+
                 ElevatedButton(
                   onPressed: _register,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   child: const Text('Register Shop'),
                 ),
                 const SizedBox(height: 16),
-                
+
                 OutlinedButton.icon(
                   onPressed: _register,
                   icon: const Icon(Icons.g_mobiledata, size: 24),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   label: const Text('Sign up with Google'),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Temporary Skip Button
                 TextButton(
                   onPressed: _skipToHome,
