@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
-import '../widgets/bottom_nav_bar.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/responsive_auth_container.dart';
 import '../widgets/tab_details_dialog.dart';
 import '../widgets/record_payment_dialog.dart';
 import '../../models/tab.dart';
@@ -15,51 +16,52 @@ class TabsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tabs = ref.watch(tabProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Tabs',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Text(
-                'SHOP-7X9K2M',
-                style: TextStyle(fontFamily: 'monospace', color: Colors.grey),
-              ),
+    return AppScaffold(
+      title: 'Tabs',
+      currentIndex: 3,
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 16.0),
+          child: Center(
+            child: Text(
+              'SHOP-7X9K2M',
+              style: TextStyle(fontFamily: 'monospace', color: Colors.grey),
             ),
           ),
-        ],
-      ),
-      body: tabs.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.receipt_long_outlined,
-                    size: 64,
-                    color: Colors.grey.shade300,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No outstanding tabs',
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 16),
-                  ),
-                ],
+        ),
+      ],
+      child: ResponsiveAuthContainer(
+        maxWidth: 1000,
+        child: tabs.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.receipt_long_outlined,
+                      size: 64,
+                      color: Colors.grey.shade300,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No outstanding tabs',
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: tabs.length,
+                itemBuilder: (context, index) {
+                  final tab = tabs[index];
+                  return _buildTabCard(context, tab);
+                },
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: tabs.length,
-              itemBuilder: (context, index) {
-                final tab = tabs[index];
-                return _buildTabCard(context, tab);
-              },
-            ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 3),
+      ),
     );
   }
 

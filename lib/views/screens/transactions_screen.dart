@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../widgets/bottom_nav_bar.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/responsive_auth_container.dart';
 import '../widgets/transaction_details_modal.dart';
 import '../../viewmodels/transaction_viewmodel.dart';
 
@@ -12,61 +13,59 @@ class TransactionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final transactions = ref.watch(transactionProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Transactions',
-          style: TextStyle(fontWeight: FontWeight.bold),
+    return AppScaffold(
+      title: 'Transactions',
+      currentIndex: 2,
+      actions: const [
+        Padding(
+          padding: EdgeInsets.only(right: 16.0),
+          child: Center(
+            child: Text(
+              'SHOP-7X9K2M',
+              style: TextStyle(fontFamily: 'monospace', color: Colors.grey),
+            ),
+          ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Text(
-                'SHOP-7X9K2M',
-                style: TextStyle(fontFamily: 'monospace', color: Colors.grey),
+      ],
+      child: ResponsiveAuthContainer(
+        maxWidth: 1000,
+        child: Column(
+          children: [
+            // Filter Chips
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              child: Row(
+                children: [
+                  _buildFilterChip(context, 'Today', isSelected: true),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(context, 'This Week', isSelected: false),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(context, 'This Month', isSelected: false),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(context, 'Custom', isSelected: false),
+                ],
               ),
             ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Filter Chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Row(
-              children: [
-                _buildFilterChip(context, 'Today', isSelected: true),
-                const SizedBox(width: 8),
-                _buildFilterChip(context, 'This Week', isSelected: false),
-                const SizedBox(width: 8),
-                _buildFilterChip(context, 'This Month', isSelected: false),
-                const SizedBox(width: 8),
-                _buildFilterChip(context, 'Custom', isSelected: false),
-              ],
-            ),
-          ),
 
-          Expanded(
-            child: transactions.isEmpty
-                ? const Center(child: Text('No transactions yet'))
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = transactions[index];
-                      return _buildTransactionCard(context, transaction);
-                    },
-                  ),
-          ),
-        ],
+            Expanded(
+              child: transactions.isEmpty
+                  ? const Center(child: Text('No transactions yet'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: transactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = transactions[index];
+                        return _buildTransactionCard(context, transaction);
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 2),
     );
   }
 

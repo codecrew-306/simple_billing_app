@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:simplebill/views/widgets/responsive_auth_container.dart';
-import '../widgets/bottom_nav_bar.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/responsive_auth_container.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Settings',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: SingleChildScrollView(
+    return AppScaffold(
+      title: 'Settings',
+      currentIndex: 4,
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: ResponsiveAuthContainer(
           child: Column(
@@ -143,7 +139,6 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 4),
     );
   }
 }
