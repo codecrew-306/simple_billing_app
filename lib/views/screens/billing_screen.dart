@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:simplebill/views/widgets/bottom_nav_bar.dart';
 import '../widgets/app_scaffold.dart';
 import '../widgets/responsive_auth_container.dart';
 import '../widgets/add_item_modal.dart';
