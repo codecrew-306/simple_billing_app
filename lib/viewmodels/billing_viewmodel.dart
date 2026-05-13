@@ -7,11 +7,7 @@ class BillingState {
   final String? customerName;
   final String? customerPhone;
 
-  BillingState({
-    this.cart = const [],
-    this.customerName,
-    this.customerPhone,
-  });
+  BillingState({this.cart = const [], this.customerName, this.customerPhone});
 
   double get subtotal => cart.fold(0.0, (sum, item) => sum + item.total);
   double get total => subtotal; // For now. Can add taxes later.
@@ -34,12 +30,17 @@ class BillingNotifier extends Notifier<BillingState> {
   BillingState build() => BillingState();
 
   void addToCart(Product product) {
-    final index = state.cart.indexWhere((item) => item.product.id == product.id);
+    final index = state.cart.indexWhere(
+      (item) => item.product.id == product.id,
+    );
     if (index >= 0) {
       updateQuantity(product.id, state.cart[index].quantity + 1);
     } else {
       state = state.copyWith(
-        cart: [...state.cart, CartItem(product: product, quantity: 1)],
+        cart: [
+          ...state.cart,
+          CartItem(product: product, quantity: 1),
+        ],
       );
     }
   }
@@ -74,4 +75,6 @@ class BillingNotifier extends Notifier<BillingState> {
   }
 }
 
-final billingProvider = NotifierProvider<BillingNotifier, BillingState>(BillingNotifier.new);
+final billingProvider = NotifierProvider<BillingNotifier, BillingState>(
+  BillingNotifier.new,
+);
