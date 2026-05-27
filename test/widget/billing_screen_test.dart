@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 import 'package:simplebill/views/screens/billing_screen.dart';
-import 'package:simplebill/viewmodels/product_viewmodel.dart';
-import 'package:simplebill/viewmodels/billing_viewmodel.dart';
-import 'package:simplebill/models/product.dart';
 
 void main() {
   Widget createTestWidget() {
-    return ProviderScope(
-      child: MaterialApp(
-        home: const BillingScreen(),
-      ),
-    );
+    return ProviderScope(child: MaterialApp(home: const BillingScreen()));
   }
 
   group('BillingScreen Widget Tests', () {
@@ -48,7 +40,13 @@ void main() {
       await tester.tap(find.text('Search by name, SKU, or category...'));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.descendant(of: find.byType(Dialog), matching: find.byType(TextField)), 'Milk');
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.byType(TextField),
+        ),
+        'Milk',
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Milk 2L'));
@@ -58,7 +56,9 @@ void main() {
       expect(find.text('Milk 2L'), findsOneWidget);
     });
 
-    testWidgets('Customer details accordion expands and collapses', (tester) async {
+    testWidgets('Customer details accordion expands and collapses', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(1200, 800);
       await tester.pumpWidget(createTestWidget());
 
@@ -85,27 +85,41 @@ void main() {
       // Add product
       await tester.tap(find.text('Search by name, SKU, or category...'));
       await tester.pumpAndSettle();
-      
+
       // Type 'Milk' to be sure
-      await tester.enterText(find.descendant(of: find.byType(Dialog), matching: find.byType(TextField)), 'Milk');
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.byType(TextField),
+        ),
+        'Milk',
+      );
       await tester.pumpAndSettle();
-      
+
       await tester.tap(find.text('Milk 2L'));
       await tester.pumpAndSettle();
 
-      final markAsPaidButtonFinder = find.widgetWithText(ElevatedButton, 'Mark as Paid');
-      final amountFieldFinder = find.byWidgetPredicate((w) => w is TextField && w.decoration?.hintText == '0.00');
-      
+      final markAsPaidButtonFinder = find.widgetWithText(
+        ElevatedButton,
+        'Mark as Paid',
+      );
+      final amountFieldFinder = find.byWidgetPredicate(
+        (w) => w is TextField && w.decoration?.hintText == '0.00',
+      );
+
       await tester.ensureVisible(amountFieldFinder);
       await tester.pumpAndSettle();
 
       // Disabled initially
-      expect(tester.widget<ElevatedButton>(markAsPaidButtonFinder).onPressed, isNull);
+      expect(
+        tester.widget<ElevatedButton>(markAsPaidButtonFinder).onPressed,
+        isNull,
+      );
 
       // Enter 130
       await tester.enterText(amountFieldFinder, '130');
       await tester.pumpAndSettle();
-      
+
       // Check if button is enabled
       final button = tester.widget<ElevatedButton>(markAsPaidButtonFinder);
       expect(button.onPressed, isNotNull);

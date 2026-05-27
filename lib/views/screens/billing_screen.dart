@@ -73,7 +73,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
     }
   }
 
-  void _finalizeTransaction(String type) {
+  void _finalizeTransaction(String type, double paidAmount) {
     final billingState = ref.read(billingProvider);
     if (billingState.cart.isEmpty) return;
 
@@ -82,6 +82,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
           .read(tabProvider.notifier)
           .addTab(
             items: List.from(billingState.cart),
+            paidAmount: paidAmount,
             total: billingState.total,
             customerName: _nameController.text.isEmpty
                 ? 'Walk-in Customer'
@@ -235,34 +236,62 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
   }
 
   Widget _buildWebLayout(BillingState state, BillingNotifier notifier) {
-    return Padding(
-      padding: const EdgeInsets.all(32.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left Side: Search, Scan, Customer, Cart
-          Expanded(
-            flex: 2,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSearchSection(),
-                  const SizedBox(height: 24),
-                  _buildScanSection(),
-                  const SizedBox(height: 24),
-                  _buildCustomerAccordion(notifier),
-                  const SizedBox(height: 24),
-                  _buildCurrentOrder(state, notifier, isWide: true),
-                ],
-              ),
+    return Stack(
+      children: [
+        // Main Scrollable Content (Left side)
+        Positioned.fill(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(32.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSearchSection(),
+                      const SizedBox(height: 24),
+                      _buildScanSection(),
+                      const SizedBox(height: 24),
+                      _buildCustomerAccordion(notifier),
+                      const SizedBox(height: 24),
+                      _buildCurrentOrder(state, notifier, isWide: true),
+                      // Extra padding at bottom to ensure last items aren't hidden by screen edges
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+                // Fixed spacer to prevent content from going under the sticky summary
+                const SizedBox(width: 432),
+              ],
             ),
           ),
-          const SizedBox(width: 32),
-          // Right Side: Summary
-          SizedBox(width: 400, child: _buildOrderSummary(state, notifier)),
-        ],
-      ),
+        ),
+        // Sticky Summary Panel (Right side)
+        Positioned(
+          top: 32,
+          right: 32,
+          bottom: 32,
+          width: 400,
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppTheme.card,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(32),
+              child: _buildOrderSummary(state, notifier),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -739,159 +768,151 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
         state.cart.isNotEmpty &&
         (_cashController.text.isEmpty || _cashReceived < state.total);
 
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppTheme.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Order Summary',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 32),
-          _buildSummaryRow('Subtotal', '₹${state.subtotal.toStringAsFixed(2)}'),
-          const SizedBox(height: 16),
-          _buildSummaryRow(
-            'Tax (8%)',
-            '₹${(state.total - state.subtotal).toStringAsFixed(2)}',
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Add Discount',
-                style: TextStyle(
-                  color: AppTheme.accent,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Text('-₹0.00', style: TextStyle(color: Colors.grey)),
-            ],
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            child: Divider(),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '₹${state.total.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 32),
-          const Text(
-            'Amount Paid',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _cashController,
-            keyboardType: TextInputType.number,
-            onChanged: (v) =>
-                setState(() => _cashReceived = double.tryParse(v) ?? 0),
-            decoration: InputDecoration(
-              prefixText: '₹ ',
-              hintText: '0.00',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Order Summary',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 32),
+        _buildSummaryRow('Subtotal', '₹${state.subtotal.toStringAsFixed(2)}'),
+        const SizedBox(height: 16),
+        _buildSummaryRow(
+          'Tax (8%)',
+          '₹${(state.total - state.subtotal).toStringAsFixed(2)}',
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Add Discount',
+              style: TextStyle(
+                color: AppTheme.accent,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          if (_cashReceived > state.total) ...[
-            const SizedBox(height: 16),
-            _buildSummaryRow(
-              'Balance to Return',
-              '₹${balance.toStringAsFixed(2)}',
-              valueColor: Colors.green,
+            const Text('-₹0.00', style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 24),
+          child: Divider(),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Total',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              '₹${state.total.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
           ],
-          const SizedBox(height: 32),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: canMarkAsPaid
-                  ? () => _finalizeTransaction('Cash')
-                  : null,
-              icon: const Icon(Icons.payments_outlined),
-              label: const Text('Mark as Paid'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.accent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-            ),
+        ),
+        const SizedBox(height: 32),
+        const Text(
+          'Amount Paid',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey,
           ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _cashController,
+          keyboardType: TextInputType.number,
+          onChanged: (v) =>
+              setState(() => _cashReceived = double.tryParse(v) ?? 0),
+          decoration: InputDecoration(
+            prefixText: '₹ ',
+            hintText: '0.00',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        if (_cashReceived > state.total) ...[
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: canSaveAsTab
-                      ? () => _finalizeTransaction('Tab')
-                      : null,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text('Save as Tab'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    notifier.reset();
-                    _cashController.clear();
-                    setState(() => _cashReceived = 0);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    foregroundColor: Colors.red,
-                  ),
-                  child: const Text('Clear'),
-                ),
-              ),
-            ],
+          _buildSummaryRow(
+            'Balance to Return',
+            '₹${balance.toStringAsFixed(2)}',
+            valueColor: Colors.green,
           ),
         ],
-      ),
+        const SizedBox(height: 32),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: canMarkAsPaid
+                ? () => _finalizeTransaction('Cash', _cashReceived)
+                : null,
+            icon: const Icon(Icons.payments_outlined),
+            label: const Text('Mark as Paid'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.accent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: canSaveAsTab
+                    ? () => _finalizeTransaction('Tab', _cashReceived)
+                    : null,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Save as Tab'),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  notifier.reset();
+                  _cashController.clear();
+                  setState(() => _cashReceived = 0);
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  foregroundColor: Colors.red,
+                ),
+                child: const Text('Clear'),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildSummaryRow(String label, String value, {Color? valueColor}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey)),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(color: Colors.grey),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         Text(
           value,
           style: TextStyle(fontWeight: FontWeight.bold, color: valueColor),
@@ -994,11 +1015,25 @@ class _BillingScreenState extends ConsumerState<BillingScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
+      backgroundColor: AppTheme.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        minChildSize: 0.5,
+        expand: false,
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: EdgeInsets.only(
+            top: 32,
+            left: 32,
+            right: 32,
+            bottom: 32 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: _buildOrderSummary(state, notifier),
         ),
-        child: _buildOrderSummary(state, notifier),
       ),
     );
   }

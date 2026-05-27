@@ -14,8 +14,24 @@ class TabNotifier extends Notifier<List<TabEntry>> {
       customerName: 'Rajesh Sharma',
       customerPhone: '98765 43210',
       items: [
-        CartItem(product: Product(id: '1', name: 'Milk 2L', price: 120.0, category: 'Grocery'), quantity: 2),
-        CartItem(product: Product(id: '2', name: 'Bread', price: 40.0, category: 'Grocery'), quantity: 1),
+        CartItem(
+          product: Product(
+            id: '1',
+            name: 'Milk 2L',
+            price: 120.0,
+            category: 'Grocery',
+          ),
+          quantity: 2,
+        ),
+        CartItem(
+          product: Product(
+            id: '2',
+            name: 'Bread',
+            price: 40.0,
+            category: 'Grocery',
+          ),
+          quantity: 1,
+        ),
       ],
       total: 850.0,
       paidAmount: 500.0,
@@ -26,7 +42,15 @@ class TabNotifier extends Notifier<List<TabEntry>> {
       customerName: 'Amit Patel',
       customerPhone: '98765 12345',
       items: [
-        CartItem(product: Product(id: '3', name: 'Rice 5kg', price: 650.0, category: 'Grocery'), quantity: 1),
+        CartItem(
+          product: Product(
+            id: '3',
+            name: 'Rice 5kg',
+            price: 650.0,
+            category: 'Grocery',
+          ),
+          quantity: 1,
+        ),
       ],
       total: 1250.0,
       paidAmount: 0.0,
@@ -37,6 +61,7 @@ class TabNotifier extends Notifier<List<TabEntry>> {
   void addTab({
     required List<CartItem> items,
     required double total,
+    required double paidAmount,
     String? customerName,
     String? customerPhone,
   }) {
@@ -46,7 +71,7 @@ class TabNotifier extends Notifier<List<TabEntry>> {
       customerPhone: customerPhone,
       items: items,
       total: total,
-      paidAmount: 0,
+      paidAmount: paidAmount,
       timestamp: DateTime.now(),
     );
     state = [newTab, ...state];
@@ -66,4 +91,6 @@ class TabNotifier extends Notifier<List<TabEntry>> {
   }
 }
 
-final tabProvider = NotifierProvider<TabNotifier, List<TabEntry>>(TabNotifier.new);
+final tabProvider = NotifierProvider<TabNotifier, List<TabEntry>>(
+  TabNotifier.new,
+);
